@@ -1,10 +1,13 @@
 ﻿using Ambev.DeveloperEvaluation.Common.Validation;
+using Ambev.DeveloperEvaluation.Domain.Validation;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace Ambev.DeveloperEvaluation.Domain.Common;
 
 public class BaseEntity : IComparable<BaseEntity>
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     public Task<IEnumerable<ValidationErrorDetail>> ValidateAsync()
     {
@@ -19,5 +22,20 @@ public class BaseEntity : IComparable<BaseEntity>
         }
 
         return other!.Id.CompareTo(Id);
+    }
+
+    public virtual ValidationResult GetValidationResult() {
+        throw new NotImplementedException();
+    }
+
+    public ValidationResultDetail Validate()
+    {
+        var result = GetValidationResult();
+
+        return new ValidationResultDetail
+        {
+            IsValid = result.IsValid,
+            Errors = result.Errors.Select(o => (ValidationErrorDetail)o)
+        };
     }
 }
